@@ -1,0 +1,5 @@
+{
+  "name": "Agentic Document Assistant",
+  "description": "A structure-first AI document editor where structure is the source of truth.",
+  "requestFramePermissions": []
+}
