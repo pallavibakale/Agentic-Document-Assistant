@@ -1,13 +1,13 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { EditorState } from 'prosemirror-state';
-import { EditorView } from 'prosemirror-view';
-import { Node } from 'prosemirror-model';
-import { documentSchema } from '../editor/schema';
-import { buildPlugins } from '../editor/editorSetup';
-import { SectionToolbar } from './SectionToolbar';
-import { SectionActionType, SectionData } from '../types';
-import { processSectionAction } from '../server/sectionAction';
-import { buildSectionNode } from '../editor/documentBuilder';
+import React, { useEffect, useRef, useState, useCallback } from "react";
+import { EditorState } from "prosemirror-state";
+import { EditorView } from "prosemirror-view";
+import { Node } from "prosemirror-model";
+import { documentSchema } from "../editor/schema";
+import { buildPlugins } from "../editor/editorSetup";
+import { SectionToolbar } from "./SectionToolbar";
+import { SectionActionType, SectionData } from "../types";
+import { processSectionAction } from "../server/sectionAction";
+import { buildSectionNode } from "../editor/documentBuilder";
 
 interface EditorProps {
   initialDoc: Node | null;
@@ -16,10 +16,11 @@ interface EditorProps {
 export const Editor: React.FC<EditorProps> = ({ initialDoc }) => {
   const editorRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
-  const [activeSection, setActiveSection] = useState<{ 
-    pos: number; 
-    node: Node; 
-    domRect: DOMRect 
+  const toolbarRef = useRef<HTMLDivElement>(null);
+  const [activeSection, setActiveSection] = useState<{
+    pos: number;
+    node: Node;
+    domRect: DOMRect;
   } | null>(null);
   const [isProcessingAction, setIsProcessingAction] = useState(false);
 
@@ -47,7 +48,7 @@ export const Editor: React.FC<EditorProps> = ({ initialDoc }) => {
     return () => {
       view.destroy();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle external doc updates (e.g. after fresh generation)
@@ -62,6 +63,26 @@ export const Editor: React.FC<EditorProps> = ({ initialDoc }) => {
     }
   }, [initialDoc]);
 
+  // Close toolbar when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        activeSection &&
+        toolbarRef.current &&
+        !toolbarRef.current.contains(event.target as Node) &&
+        editorRef.current &&
+        !editorRef.current.contains(event.target as Node)
+      ) {
+        setActiveSection(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [activeSection]);
+
   // Detect active section for toolbar
   const handleSelectionChange = useCallback((view: EditorView) => {
     const { state } = view;
@@ -75,7 +96,7 @@ export const Editor: React.FC<EditorProps> = ({ initialDoc }) => {
     // Walk up the tree to find the section
     for (let d = $from.depth; d > 0; d--) {
       const node = $from.node(d);
-      if (node.type.name === 'section') {
+      if (node.type.name === "section") {
         sectionNode = node;
         sectionPos = $from.before(d);
         break;
@@ -89,10 +110,10 @@ export const Editor: React.FC<EditorProps> = ({ initialDoc }) => {
         const rect = dom.getBoundingClientRect();
         // Adjust for editor relative position if needed, here treating as fixed/absolute relative to viewport or container
         // Simplified for this demo: use rect
-        setActiveSection({ 
-          pos: sectionPos, 
-          node: sectionNode, 
-          domRect: rect 
+        setActiveSection({
+          pos: sectionPos,
+          node: sectionNode,
+          domRect: rect,
         });
         return;
       }
@@ -112,7 +133,7 @@ export const Editor: React.FC<EditorProps> = ({ initialDoc }) => {
     const title = titleNode.textContent;
     const content: string[] = [];
     node.forEach((child, offset) => {
-      if (child.type.name === 'paragraph') {
+      if (child.type.name === "paragraph") {
         content.push(child.textContent);
       }
     });
@@ -126,13 +147,13 @@ export const Editor: React.FC<EditorProps> = ({ initialDoc }) => {
       // Replace the section in the document
       const view = viewRef.current;
       const tr = view.state.tr;
-      
+
       const newSectionNode = buildSectionNode(response.data, documentSchema);
-      
+
       // Calculate range of the old section
       const from = pos;
       const to = pos + node.nodeSize;
-      
+
       tr.replaceWith(from, to, newSectionNode);
       view.dispatch(tr);
     } else {
@@ -145,17 +166,18 @@ export const Editor: React.FC<EditorProps> = ({ initialDoc }) => {
   return (
     <div className="relative w-full max-w-4xl mx-auto">
       {/* Editor Container */}
-      <div 
-        ref={editorRef} 
+      <div
+        ref={editorRef}
         className="min-h-[60vh] bg-white p-12 rounded-xl shadow-sm border border-gray-100"
       />
 
       {/* Floating Toolbar */}
       {activeSection && (
-        <SectionToolbar 
-          position={{ 
-            top: activeSection.domRect.top + window.scrollY, 
-            left: activeSection.domRect.left + window.scrollX
+        <SectionToolbar
+          ref={toolbarRef}
+          position={{
+            top: activeSection.domRect.top + window.scrollY,
+            left: activeSection.domRect.left + window.scrollX,
           }}
           sectionTitle={activeSection.node.child(0).textContent}
           onAction={handleAction}
