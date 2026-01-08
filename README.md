@@ -1,4 +1,5 @@
-# Agentic Document Assistant  
+# Agentic Document Assistant
+
 **Structure-first AI drafting and editing**
 
 ## Overview
@@ -11,15 +12,25 @@ The project explores how AI and humans can collaborate on documents **without br
 
 ---
 
+## Screenshot
+
+![Agentic Document Assistant Interface - showing document preview with section-level AI editing toolbar](image.png)
+
+_The interface shows a generated Non-Disclosure Agreement with section-specific AI actions (Make Formal, Simplify, Summarize, Expand) accessible via contextual toolbar._
+
+---
+
 ## Why this exists
 
 Most AI writing tools treat documents as plain text:
+
 - Structure is lost
 - Formatting breaks
 - Edits become risky
 - Users lose trust
 
 This project takes a different approach:
+
 - Structure is the source of truth
 - AI operates within strict boundaries
 - All edits are validated before applying
@@ -36,6 +47,7 @@ AI never returns HTML or markdown.
 It returns **structured JSON** that maps directly to the editor schema.
 
 Example AI output:
+
 ```json
 {
   "sections": [
@@ -47,9 +59,7 @@ Example AI output:
     },
     {
       "title": "Confidentiality",
-      "content": [
-        "The Contractor agrees to protect confidential information."
-      ]
+      "content": ["The Contractor agrees to protect confidential information."]
     }
   ]
 }
@@ -62,6 +72,7 @@ This output is converted into editor nodes, not pasted as text.
 ### 2. Schema-driven editing
 
 The editor is built on ProseMirror with a strict schema:
+
 - Documents are made of sections
 - Sections contain headings and paragraphs
 - Invalid structures are rejected
@@ -75,11 +86,13 @@ This mirrors how real DOCX documents behave.
 AI does not modify the entire document.
 
 Each action is:
+
 - Scoped to a single section
 - Explicitly triggered by the user
 - Validated before applying
 
 Examples:
+
 - Rewrite a section
 - Summarize a section
 - Change tone
@@ -92,6 +105,7 @@ This keeps AI helpful without being dangerous.
 
 AI suggestions are never automatic.  
 Users:
+
 - Trigger actions intentionally
 - Review results before applying
 - Can edit manually at any time
@@ -133,12 +147,12 @@ agentic-doc-assistant/
 
 ## How it works (High level)
 
-1. User provides a document prompt  
-2. Backend generates structured JSON via AI  
-3. JSON is validated and converted into editor nodes  
-4. User edits or selects a section  
-5. AI actions operate on that section only  
-6. Results are reinserted without breaking structure  
+1. User provides a document prompt
+2. Backend generates structured JSON via AI
+3. JSON is validated and converted into editor nodes
+4. User edits or selects a section
+5. AI actions operate on that section only
+6. Results are reinserted without breaking structure
 
 No HTML. No markdown parsing. No unsafe text injection.
 
@@ -146,20 +160,20 @@ No HTML. No markdown parsing. No unsafe text injection.
 
 ## What this project demonstrates
 
-- Schema-aware document editing  
-- Safe AI integration into editors  
-- Agent-based LLM workflows  
-- Clear separation between generation, validation, and application  
-- Engineering judgment around correctness and user trust  
+- Schema-aware document editing
+- Safe AI integration into editors
+- Agent-based LLM workflows
+- Clear separation between generation, validation, and application
+- Engineering judgment around correctness and user trust
 
 ---
 
 ## Non-Goals
 
-- Real-time collaboration  
-- Full DOCX import/export  
-- Authentication or persistence  
-- Visual polish  
+- Real-time collaboration
+- Full DOCX import/export
+- Authentication or persistence
+- Visual polish
 
 This project focuses on **core document and AI mechanics**, not product completeness.
 
@@ -170,19 +184,17 @@ This project focuses on **core document and AI mechanics**, not product complete
 As AI becomes part of writing workflows, correctness and structure matter more than speed.
 
 This project shows one way to:
-- Let AI help  
-- Keep documents valid  
-- Keep users in control  
+
+- Let AI help
+- Keep documents valid
+- Keep users in control
 
 ---
 
 ## Future Extensions (Out of scope)
 
-- Track changes  
-- Comments and suggestions  
-- DOCX export  
-- Multi-user collaboration  
-- Real LLM integration  
-
----
-
+- Track changes
+- Comments and suggestions
+- DOCX export
+- Multi-user collaboration
+- Real LLM integration
